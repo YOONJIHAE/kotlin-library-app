@@ -1,40 +1,29 @@
-package com.group.libraryapp.controller.user;
+package com.group.libraryapp.controller.user
 
-import com.group.libraryapp.dto.user.request.UserCreateRequest;
-import com.group.libraryapp.dto.user.request.UserUpdateRequest;
-import com.group.libraryapp.dto.user.response.UserResponse;
-import com.group.libraryapp.service.user.UserService;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import com.group.libraryapp.dto.user.request.UserCreateRequest
+import com.group.libraryapp.dto.user.request.UserUpdateRequest
+import com.group.libraryapp.dto.user.response.UserResponse
+import com.group.libraryapp.service.user.UserService
+import org.springframework.web.bind.annotation.*
 
 @RestController
-public class UserController {
+class UserController(private val userService: UserService) {
+    @PostMapping("/user")
+    fun saveUser(@RequestBody request: UserCreateRequest) {
+        userService.saveUser(request)
+    }
 
-  private final UserService userService;
+    @get:GetMapping("/user")
+    val users: List<UserResponse>
+        get() = userService.getUsers()
 
-  public UserController(UserService userService) {
-    this.userService = userService;
-  }
+    @PutMapping("/user")
+    fun updateUserName(@RequestBody request: UserUpdateRequest) {
+        userService.updateUserName(request)
+    }
 
-  @PostMapping("/user")
-  public void saveUser(@RequestBody UserCreateRequest request) {
-    userService.saveUser(request);
-  }
-
-  @GetMapping("/user")
-  public List<UserResponse> getUsers() {
-    return userService.getUsers();
-  }
-
-  @PutMapping("/user")
-  public void updateUserName(@RequestBody UserUpdateRequest request) {
-    userService.updateUserName(request);
-  }
-
-  @DeleteMapping("/user")
-  public void deleteUser(@RequestParam String name) {
-    userService.deleteUser(name);
-  }
-
+    @DeleteMapping("/user")
+    fun deleteUser(@RequestParam name: String) {
+        userService.deleteUser(name)
+    }
 }

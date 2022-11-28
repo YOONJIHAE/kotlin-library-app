@@ -14,6 +14,7 @@ import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
@@ -45,18 +46,16 @@ class BookServiceTest @Autowired constructor(
     @Test
     @DisplayName("책이 대출되어있으면 신규대출이 실패")
     fun loanBookTest() {
+        val user = userRepository.save(User("윤지혜", 27))
         bookRepository.save(Book("이상한 나라의 엘리스"))
-        val savedUser = userRepository.save(User("윤지혜", 27))
+        userLoanHistoryRepository.save(UserLoanHistory(user, "이상한 나라의 엘리스", false))
+
         val request = BookLoanRequest("윤지혜", "이상한 나라의 엘리스")
 
-        bookService.loanBook(request)
-
-        val results = userLoanHistoryRepository.findAll()
-
-        Assertions.assertThat(results).hasSize(1)
-        assertThat(results[0].bookName).isEqualTo("이상한 나라의 엘리스")
-        assertThat(results[0].user.id).isEqualTo(savedUser.id)
-        assertThat(results[0].isReturn).isFalse
+        val message = assertThrows<IllegalArgumentException>{
+            bookService.loanBook(request)
+        }.message
+        assertThat(message).isEqualTo("진작 대출되어 있는 책입니다")
     }
 
     @Test
